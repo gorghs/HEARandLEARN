@@ -1,4 +1,5 @@
-import {AfterViewInit, Component, inject} from '@angular/core';
+import {AfterViewInit, Component, inject, PLATFORM_ID} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 import {TranslocoService} from '@jsverse/transloco';
 import {filter, tap} from 'rxjs/operators';
 import {firstValueFrom} from 'rxjs';
@@ -25,6 +26,7 @@ export class AppComponent implements AfterViewInit {
   private transloco = inject(TranslocoService);
   private router = inject(Router);
   private mediaMatcher = inject(MediaMatcher);
+  private platformId = inject(PLATFORM_ID);
 
   urlParams = getUrlParams();
 
@@ -84,8 +86,13 @@ export class AppComponent implements AfterViewInit {
     onColorSchemeChange();
   }
 
-  initCookieConsent() {
-    return CookieConsent.run({
+  initCookieConsent(): void {
+    // Skip cookie consent on server-side rendering
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    CookieConsent.run({
       root: 'body',
       autoShow: true,
       hideFromBots: true,
@@ -212,6 +219,9 @@ export class AppComponent implements AfterViewInit {
   }
 
   checkURLEmbedding(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     const urlParam = this.urlParams.get('embed');
     if (urlParam !== null) {
       document.body.classList.add('embed');

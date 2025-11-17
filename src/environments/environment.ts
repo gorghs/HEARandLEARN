@@ -5,15 +5,15 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: 'AIzaSyAtVDGmDVCwWunWW2ocgeHWnAsUhHuXvcg',
+    apiKey: 'YOUR_FIREBASE_API_KEY',
     authDomain: 'sign-mt.firebaseapp.com',
     projectId: 'sign-mt',
     storageBucket: 'sign-mt.appspot.com',
-    messagingSenderId: '665830225099',
-    appId: '1:665830225099:web:18e0669d5847a4b047974e',
+    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+    appId: 'YOUR_APP_ID',
     measurementId: null,
   },
-  reCAPTCHAKey: '6Ldsxb8oAAAAAGyUZbyd0QruivPSudqAWFygR-4t',
+  reCAPTCHAKey: 'YOUR_RECAPTCHA_KEY',
 };
 
 /*

@@ -1,19 +1,26 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <app-language-selectors />
+    <ion-title>
+      <app-logo [text]="'translate.logo' | transloco" />
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  @if (spokenToSigned) {
-    <app-signed-language-output />
-  } @else {
-    <app-video [displayControls]="false" [displayFps]="false" />
-  }
+  <div class="mobile-container">
+    @if (spokenToSigned) {
+      <app-signed-language-output />
+    } @else {
+      <app-video [displayControls]="false" [displayFps]="false" />
+    }
+  </div>
 </ion-content>
 
 <!-- Footer with input and submit button -->
 <ion-footer [class.signed-to-spoken]="!spokenToSigned">
+  <ion-toolbar>
+    <app-language-selectors />
+  </ion-toolbar>
   @if (spokenToSigned) {
     <app-spoken-language-input [isMobile]="true" />
   } @else {

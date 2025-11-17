@@ -2,7 +2,7 @@ import {Component, inject, OnInit} from '@angular/core';
 import {Store} from '@ngxs/store';
 import {takeUntil, tap} from 'rxjs/operators';
 import {BaseComponent} from '../../../components/base/base.component';
-import {IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar} from '@ionic/angular/standalone';
+import {IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar} from '@ionic/angular/standalone';
 import {TranslateInputButtonComponent} from '../input/button/button.component';
 import {LanguageSelectorsComponent} from '../language-selectors/language-selectors.component';
 import {SendFeedbackComponent} from '../send-feedback/send-feedback.component';
@@ -22,9 +22,9 @@ import {LogoComponent} from '../../../components/logo/logo.component';
   imports: [
     IonHeader,
     IonToolbar,
-    IonButtons,
     IonContent,
     IonTitle,
+    IonFooter,
     TranslateInputButtonComponent,
     LanguageSelectorsComponent,
     SendFeedbackComponent,
@@ -32,7 +32,6 @@ import {LogoComponent} from '../../../components/logo/logo.component';
     SpokenToSignedComponent,
     SignedToSpokenComponent,
     DropPoseFileComponent,
-    IonButton,
     LogoComponent,
   ],
 })

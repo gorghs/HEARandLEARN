@@ -1,14 +1,22 @@
 import {HttpClient} from '@angular/common/http';
 import {Translation, TRANSLOCO_SCOPE, TranslocoLoader} from '@jsverse/transloco';
-import {inject, Injectable} from '@angular/core';
+import {inject, Injectable, PLATFORM_ID} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 
-import {catchError, Observable} from 'rxjs';
+import {catchError, Observable, of} from 'rxjs';
 
 @Injectable({providedIn: 'root'})
 export class HttpLoader implements TranslocoLoader {
   private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
 
   getTranslation(langPath: string): Observable<Translation> {
+    // During SSR, return empty translations to avoid errors
+    if (!isPlatformBrowser(this.platformId)) {
+      console.log(`SSR: Skipping translation load for ${langPath}`);
+      return of({} as Translation);
+    }
+
     const assetPath = `assets/i18n/${langPath}.json`;
     return this.http.get<Translation>(assetPath).pipe(
       catchError(err => {
