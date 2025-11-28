@@ -1,0 +1,396 @@
+src/app/pages/translate/translate.component.ts:
+
+import {Component, inject, OnInit} from '@angular/core';
+import {Store} from '@ngxs/store';
+import {SetSetting} from '../../modules/settings/settings.actions';
+import {fromEvent, Observable} from 'rxjs';
+import {BaseComponent} from '../../components/base/base.component';
+import {filter, takeUntil, tap} from 'rxjs/operators';
+import {TranslocoService} from '@jsverse/transloco';
+import {TranslationService} from '../../modules/translate/translate.service';
+import {Meta, Title} from '@angular/platform-browser';
+import {MediaMatcher} from '@angular/cdk/layout';
+import {TranslateMobileComponent} from './translate-mobile/translate-mobile.component';
+import {TranslateDesktopComponent} from './translate-desktop/translate-desktop.component';
+
+@Component({
+  selector: 'app-translate',
+  templateUrl: './translate.component.html',
+  styleUrls: ['./translate.component.scss'],
+  imports: [TranslateMobileComponent, TranslateDesktopComponent],
+})
+export class TranslateComponent extends BaseComponent implements OnInit {
+  private store = inject(Store);
+  private transloco = inject(TranslocoService);
+  translation = inject(TranslationService);
+  private mediaMatcher = inject(MediaMatcher);
+  private meta = inject(Meta);
+  private title = inject(Title);
+
+  spokenToSigned$: Observable<boolean>;
+
+  isMobile: MediaQueryList;
+
+  constructor() {
+    super();
+
+    this.spokenToSigned$ = this.store.select<boolean>(state => state.translate.spokenToSigned);
+    this.isMobile = this.mediaMatcher.matchMedia('screen and (max-width: 599px)');
+
+    // Default settings
+    this.store.dispatch([
+      new SetSetting('receiveVideo', true),
+      new SetSetting('detectSign', false),
+      new SetSetting('drawSignWriting', false), // This setting currently also controls loading the SignWriting models.
+      new SetSetting('drawPose', true),
+      new SetSetting('poseViewer', 'pose'),
+    ]);
+  }
+
+  ngOnInit(): void {
+    this.transloco.events$
+      .pipe(
+        tap(() => {
+          this.title.setTitle(this.transloco.translate('translate.title'));
+          this.meta.updateTag(
+            {
+              name: 'description',
+              content: this.transloco.translate('translate.description'),
+            },
+            'name=description'
+          );
+        }),
+        takeUntil(this.ngUnsubscribe)
+      )
+      .subscribe();
+
+    this.spokenToSigned$
+      .pipe(
+        filter(spokenToSigned => !spokenToSigned),
+        tap(() => {
+          this.store.dispatch(new SetSetting('drawSignWriting', true));
+        }),
+        takeUntil(this.ngUnsubscribe)
+      )
+      .subscribe();
+
+    this.playVideos();
+  }
+
+  async playVideos(): Promise<void> {
+    if (!('window' in globalThis)) {
+      return;
+    }
+
+    // Autoplay videos don't play before page interaction, or after re-opening PWA without refresh
+    fromEvent(window, 'click')
+      .pipe(
+        tap(async () => {
+          const videos = Array.from(document.getElementsByTagName('video'));
+
+          for (const video of videos) {
+            if (video.autoplay && video.paused) {
+              try {
+                await video.play();
+              } catch (e) {
+                console.error(e);
+              }
+            }
+          }
+        }),
+        takeUntil(this.ngUnsubscribe)
+      )
+      .subscribe();
+  }
+}
+
+src/app/pages/translate/translate.component.html:
+
+@if (isMobile.matches) {
+  <app-translate-mobile />
+} @else {
+  <app-translate-desktop />
+}
+
+src/app/pages/translate/signed-to-spoken/signed-to-spoken.component.ts:
+
+import {Component, inject, OnInit} from '@angular/core';
+import {Store} from '@ngxs/store';
+import {VideoStateModel} from '../../../core/modules/ngxs/store/video/video.state';
+import {InputMode} from '../../../modules/translate/translate.state';
+import {
+  CopySpokenLanguageText,
+  SetSignWritingText,
+  SetSpokenLanguageText,
+} from '../../../modules/translate/translate.actions';
+import {Observable} from 'rxjs';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {SignWritingComponent} from '../signwriting/sign-writing.component';
+import {IonButton, IonIcon} from '@ionic/angular/standalone';
+import {TextToSpeechComponent} from '../../../components/text-to-speech/text-to-speech.component';
+import {UploadComponent} from './upload/upload.component';
+import {addIcons} from 'ionicons';
+import {copyOutline} from 'ionicons/icons';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {AsyncPipe, NgTemplateOutlet} from '@angular/common';
+import {VideoModule} from '../../../components/video/video.module';
+
+const FAKE_WORDS = [
+  {
+    time: 0.618368,
+    sw: ['M507x523S15a28494x496'],
+    text: 'B',
+  },
+  {
+    time: 0.876432,
+    sw: ['M507x523S15a28494x496S26500493x477'],
+    text: 'Your',
+  },
+
+  {
+    time: 1.102468,
+    sw: ['M507x523S15a28494x496S26500493x477', 'M522x525S11541498x491S115494'],
+    text: 'Your h',
+  },
+  {
+    time: 1.102468,
+    sw: ['M507x523S15a28494x496S26500493x477', 'M522x525S11541498x491'],
+    text: 'Your h',
+  },
+  {
+    time: 1.438297,
+    sw: ['M507x523S15a28494x496S26500493x477', 'M522x525S11541498x491S11549479x498'],
+    text: 'Your',
+  },
+  {
+    time: 1.628503,
+    sw: ['M507x523S15a28494x496S26500493x477', 'M522x525S11541498x491S11549479x498S20500489x476'],
+    text: 'Your',
+  },
+  {
+    time: 1.786967,
+    sw: ['M507x523S15a28494x496S26500493x477', 'M522x525S11541498x491S11549479x498S20600489x476'],
+    text: 'Your name',
+  },
+  {
+    time: 1.993408,
+    sw: [
+      'M507x523S15a28494x496S26500493x477',
+      'M522x525S11541498x491S11549479x498S20600489x476',
+      'M554x585S30a00481x488S14c39465x545S14c31508x546',
+    ],
+    text: 'Your name',
+  },
+  {
+    time: 2.163386,
+    sw: [
+      'M507x523S15a28494x496S26500493x477',
+      'M522x525S11541498x491S11549479x498S20600489x476',
+      'M554x585S30a00481x488S30300481x477S14c31508x546S14c39465x545S26506539x545S26512445x545',
+    ],
+    text: 'Your name',
+  },
+  {
+    time: 3.113322,
+    sw: [
+      'M507x523S15a28494x496S26500493x477',
+      'M522x525S11541498x491S11549479x498S20600489x476',
+      'M554x585S30a00481x488S30300481x477S14c31508x546S14c39465x545S27102539x545S27116445x545',
+    ],
+    text: 'What is your name?',
+  },
+];
+
+@Component({
+  selector: 'app-signed-to-spoken',
+  templateUrl: './signed-to-spoken.component.html',
+  styleUrls: ['./signed-to-spoken.component.scss'],
+  imports: [
+    MatTooltipModule,
+    SignWritingComponent,
+    IonButton,
+    TextToSpeechComponent,
+    VideoModule,
+    UploadComponent,
+    IonIcon,
+    TranslocoPipe,
+    AsyncPipe,
+    NgTemplateOutlet,
+  ],
+})
+export class SignedToSpokenComponent implements OnInit {
+  private store = inject(Store);
+
+  videoState$!: Observable<VideoStateModel>;
+  inputMode$!: Observable<InputMode>;
+  spokenLanguage$!: Observable<string>;
+  spokenLanguageText$!: Observable<string>;
+
+  constructor() {
+    this.videoState$ = this.store.select<VideoStateModel>(state => state.video);
+    this.inputMode$ = this.store.select<InputMode>(state => state.translate.inputMode);
+    this.spokenLanguage$ = this.store.select<string>(state => state.translate.spokenLanguage);
+    this.spokenLanguageText$ = this.store.select<string>(state => state.translate.spokenLanguageText);
+
+    this.store.dispatch(new SetSpokenLanguageText(''));
+
+    addIcons({copyOutline});
+  }
+
+  ngOnInit(): void {
+    // To get the fake translation
+    let lastArray = [];
+    let lastText = '';
+
+    const f = () => {
+      const video = document.querySelector('video');
+      if (video) {
+        let resultArray = [];
+        let resultText = '';
+        for (const step of FAKE_WORDS) {
+          if (step.time <= video.currentTime) {
+            resultText = step.text;
+            resultArray = step.sw;
+          }
+        }
+
+        if (resultText !== lastText) {
+          this.store.dispatch(new SetSpokenLanguageText(resultText));
+          lastText = resultText;
+        }
+
+        if (JSON.stringify(resultArray) !== JSON.stringify(lastArray)) {
+          this.store.dispatch(new SetSignWritingText(resultArray));
+          lastArray = resultArray;
+        }
+      }
+
+      requestAnimationFrame(f);
+    };
+    f();
+  }
+
+  copyTranslation() {
+    this.store.dispatch(CopySpokenLanguageText);
+  }
+}
+
+src/app/pages/translate/signed-to-spoken/signed-to-spoken.component.html:
+
+@if (inputMode$ | async; as inputMode) {
+  @switch (inputMode) {
+    @case ('upload') {
+      @if (videoState$ | async; as videoState) {
+        @if (!videoState.src) {
+          <app-upload />
+        } @else {
+          <ng-container *ngTemplateOutlet="translationTemplate" />
+        }
+      }
+    }
+    @case ('webcam') {
+      <ng-container *ngTemplateOutlet="translationTemplate" />
+    }
+  }
+}
+
+<ng-template #translationTemplate>
+  <div class="interface">
+    <div class="sign-language">
+      <app-video [displayControls]="false" [displayFps]="false" />
+    </div>
+
+    <app-sign-writing />
+
+    @if (spokenLanguageText$ | async; as translation) {
+      <div class="translation-text">
+        <div>{{ translation }}</div>
+
+        @if (translation !== '') {
+          <div>
+            <app-text-to-speech [lang]="spokenLanguage$ | async" [text]="translation"></app-text-to-speech>
+
+            <ion-button
+              class="circle-icon"
+              fill="clear"
+              shape="round"
+              color="dark"
+              (click)="copyTranslation()"
+              [attr.aria-label]="'translate.signed-to-spoken.actions.copy' | transloco"
+              [matTooltip]="'translate.signed-to-spoken.actions.copy' | transloco"
+              [matTooltipPosition]="'above'">
+              <ion-icon name="copy-outline" slot="icon-only" />
+            </ion-button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ng-template>
+
+src/app/core/services/holistic.service.ts:
+
+import {Injectable} from '@angular/core';
+import type * as holistic from '@mediapipe/holistic';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class MediapipeHolisticService {
+  private importPromise: Promise<typeof holistic>;
+  private holistic: typeof holistic;
+
+  async load(): Promise<typeof holistic> {
+    if (!this.importPromise) {
+      this.importPromise = import(/* webpackChunkName: "@mediapipe/holistic" */ '@mediapipe/holistic').then(
+        module => (this.holistic = module.default)
+      );
+    }
+
+    return this.importPromise;
+  }
+
+  get Holistic(): typeof holistic.Holistic {
+    return this.holistic.Holistic;
+  }
+
+  get POSE_LANDMARKS(): typeof holistic.POSE_LANDMARKS {
+    return this.holistic.POSE_LANDMARKS;
+  }
+
+  get POSE_CONNECTIONS(): typeof holistic.POSE_CONNECTIONS {
+    return this.holistic.POSE_CONNECTIONS;
+  }
+
+  get HAND_CONNECTIONS(): typeof holistic.HAND_CONNECTIONS {
+    return this.holistic.HAND_CONNECTIONS;
+  }
+
+  get FACEMESH_TESSELATION(): typeof holistic.FACEMESH_TESSELATION {
+    return this.holistic.FACEMESH_TESSELATION;
+  }
+
+  get FACEMESH_RIGHT_EYE(): typeof holistic.FACEMESH_RIGHT_EYE {
+    return this.holistic.FACEMESH_RIGHT_EYE;
+  }
+
+  get FACEMESH_RIGHT_EYEBROW(): typeof holistic.FACEMESH_RIGHT_EYEBROW {
+    return this.holistic.FACEMESH_RIGHT_EYEBROW;
+  }
+
+  get FACEMESH_LEFT_EYE(): typeof holistic.FACEMESH_LEFT_EYE {
+    return this.holistic.FACEMESH_LEFT_EYE;
+  }
+
+  get FACEMESH_LEFT_EYEBROW(): typeof holistic.FACEMESH_LEFT_EYEBROW {
+    return this.holistic.FACEMESH_LEFT_EYEBROW;
+  }
+
+  get FACEMESH_FACE_OVAL(): typeof holistic.FACEMESH_FACE_OVAL {
+    return this.holistic.FACEMESH_FACE_OVAL;
+  }
+
+  get FACEMESH_LIPS(): typeof holistic.FACEMESH_LIPS {
+    return this.holistic.FACEMESH_LIPS;
+  }
+}

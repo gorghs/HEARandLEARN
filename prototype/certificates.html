@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificates - Fail-Safe Hiring</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="main-layout">
+        <header class="header">
+            <div class="logo">FAIL-SAFE HIRING</div>
+            <div class="search-bar">
+                <i class="material-icons">search</i>
+                <input type="text" placeholder="Search dashboard...">
+            </div>
+            <div class="header-icons">
+                <i class="material-icons icon">dark_mode</i>
+                <i class="material-icons icon">notifications</i>
+                <div class="avatar"></div>
+            </div>
+        </header>
+
+        <nav class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">Overview</a></li>
+                <li><a href="#">Analytics</a></li>
+                <li><a href="#">Recruitment</a></li>
+                <li><a href="courses.html">Courses</a></li>
+                <li><a href="#">Reports</a></li>
+                <li><a href="#">Settings</a></li>
+                <li><a href="#">Resources</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <div class="page-header">
+                <h1>Certificate Inventory</h1>
+                <button class="btn btn-primary">Upload Certificate</button>
+            </div>
+
+            <div class="certificate-filters">
+                <div class="tabs">
+                    <a href="#" class="active">All Certificates</a>
+                    <a href="#">Active</a>
+                    <a href="#">Expired</a>
+                </div>
+                <div class="sort-by" style="margin-bottom: 0;">
+                    <div class="dropdown">
+                        <div class="dropdown-toggle">
+                            Sort By: Date
+                            <i class="material-icons">arrow_drop_down</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="certificate-list">
+                <div class="certificate-card">
+                    <div class="info">
+                        <h3>Project Management Masterclass</h3>
+                        <p>Recipient: John Doe</p>
+                        <p>Issued: 2023-10-26</p>
+                    </div>
+                    <div class="status">
+                        <span class="status-badge active">Active</span>
+                    </div>
+                </div>
+                <div class="certificate-card">
+                    <div class="info">
+                        <h3>Advanced Python</h3>
+                        <p>Recipient: Alex Chen</p>
+                    </div>
+                </div>
+                <div class="certificate-card">
+                    <div class="info">
+                        <h3>Web Development Bootcamp</h3>
+                        <p>Recipients: Jand Snan / Lamed Sevith</p>
+                    </div>
+                    <div class="status">
+                        <span class="status-badge expired">Expired</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

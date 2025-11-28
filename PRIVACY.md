@@ -1,9 +1,9 @@
-# Privacy Policy for [`gorghs/signify`](https://github.com/gorghs/signify)
+# Privacy Policy for [`gorghs/HEARandLEARN`](https://github.com/gorghs/HEARandLEARN)
 
 **Effective date: 20 June 2025**
 
 This Privacy Policy describes how **karthick** (“we”, “us”, “our”) collects, uses, and safeguards
-your personal data when you interact with the [`gorghs/signify`](https://github.com/gorghs/signify) service
+your personal data when you interact with the [`gorghs/HEARandLEARN`](https://github.com/gorghs/HEARandLEARN) service
 available at [karthick.com](https://karthick.com) and its related applications.  
 We process information in accordance with the **General Data Protection Regulation (GDPR)** and
 the **Swiss Federal Act on Data Protection (FADP)**, and we review
@@ -11,7 +11,7 @@ this notice periodically to ensure it remains accurate and up-to-date.
 
 ## 1. Who We Are
 
-**karthick** is the data controller responsible for any personal data processed in connection with `gorghs/signify`.  
+**karthick** is the data controller responsible for any personal data processed in connection with `gorghs/HEARandLEARN`.  
 You can reach our privacy team at [karthick@example.com](mailto:karthick@example.com) for any inquiries or to exercise your data-protection rights.
 
 Our guiding principle is data-minimisation.  

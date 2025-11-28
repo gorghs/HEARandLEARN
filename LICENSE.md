@@ -1,10 +1,10 @@
-# License for [`gorghs/signify`](https://github.com/gorghs/signify)
+# License for [`gorghs/HEARandLEARN`](https://github.com/gorghs/HEARandLEARN)
 
-The license for `sign/translate` is divided into two tiers, based on the type of your legal entity.
-Individuals, non-profit organizations, and educational institutions are permitted to use `sign/translate` for sign language translation without charge,
+The license for `Hear and Learn` is divided into two tiers, based on the type of your legal entity.
+Individuals, non-profit organizations, and educational institutions are permitted to use `Hear and Learn` for sign language translation without charge,
 while a separate license is required for for-profit commercial organizations.
 
-This licensing model has been designed to provide funding for the development and maintenance of `sign/translate`,
+This licensing model has been designed to provide funding for the development and maintenance of `Hear and Learn`,
 while still making the source code accessible and the program free for a majority of users.
 
 Please review the following license terms carefully to determine which license applies to your use case.
